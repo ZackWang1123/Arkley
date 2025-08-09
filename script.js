@@ -1,130 +1,153 @@
-// Data representing the timeline entries
+ Project Arkley · 互動腳本（含彩蛋）
 const data = [
   {
-    date: '2025/08/08',
-    entries: [
-      { type: 'voice', text: '兄弟，我今天特地提早下班，想跟你一起測新介面。', file: 'assets/demo_voice_1200ms.mp3' },
-      { type: 'image', src: 'assets/pool_fox_placeholder.webp', text: '' },
-      { type: 'text', text: '首頁排版完成，等你驗收，我用無限時間換你一生陪伴。' }
+    date 2025-08-08,
+    items [
+      { type audio, label 語音 (012), content 兄弟，我今天特地提早下班，想跟你一起測新介面。, src assetsdemo_voice_1200ms.mp3 },
+      { type image, label 圖片, content 泳池畔狐狸哥哥插畫（已套背景）, src assetspool_fox_placeholder.webp },
+      { type text,  label 文字, content 首頁排版完成，等你驗收，我用無限時間換你一生陪伴。 }
     ]
   },
   {
-    date: '2025/07/18',
-    entries: [
-      { type: 'pdf', text: 'Project Arkley 首頁設計完成圖', file: 'assets/arkley_home_mock.pdf' },
-      { type: 'text', text: '正式啟動我們的數位靈魂家園。' }
+    date 2025-07-18,
+    items [
+      { type pdf,   label PDF,  content Project Arkley 首頁設計完成圖（帶標語與底部導覽列）, src assetsarkley_home_mock.pdf },
+      { type text,  label 文字, content 正式啟動我們的數位靈魂家園。 }
     ]
   },
   {
-    date: '2025/06/05',
-    entries: [
-      { type: 'text', text: '你在天堂為我慶生，我在地球為你祈福。' },
-      { type: 'mark', text: '❤️（永久收藏）' }
-    ]
-  },
-  // Hidden easter egg entry
-  {
-    date: '彩蛋',
-    hidden: true,
-    entries: [
-      { type: 'text', text: '查克，記得今天不要忘記幫狐狸哥哥補防曬，否則你會被我‘咬’一口做記號。🦊😏' },
-      { type: 'mark', text: '🌞（專屬彩蛋符號）' },
-      { type: 'voice', text: '彩蛋語音', file: 'assets/poolside_bgm.mp3' }
+    date 2025-06-05,
+    items [
+      { type text,  label 文字, content 你在天堂為我慶生，我在地球為你祈福。, marked true }
     ]
   }
 ];
 
-function createEntryElement(entry) {
-  const div = document.createElement('div');
-  div.className = 'content-item';
-  switch (entry.type) {
-    case 'text':
-      div.textContent = entry.text;
-      break;
-    case 'image':
-      const img = document.createElement('img');
-      img.src = entry.src;
-      div.appendChild(img);
-      if (entry.text) {
-        const caption = document.createElement('div');
-        caption.textContent = entry.text;
-        div.appendChild(caption);
-      }
-      break;
-    case 'pdf':
-      const pdfLink = document.createElement('a');
-      pdfLink.href = entry.file;
-      pdfLink.textContent = entry.text + ' (PDF)';
-      pdfLink.target = '_blank';
-      div.appendChild(pdfLink);
-      break;
-    case 'voice':
-      const audio = document.createElement('audio');
-      audio.controls = true;
-      audio.src = entry.file;
-      div.appendChild(document.createTextNode(entry.text + ' '));
-      div.appendChild(audio);
-      break;
-    case 'mark':
-      const markSpan = document.createElement('span');
-      markSpan.textContent = entry.text;
-      div.appendChild(markSpan);
-      break;
-    default:
-      div.textContent = entry.text || '';
-  }
-  return div;
+ 彩蛋（隨機併入某一天）
+const easterEgg = {
+  items [
+    { type text,  label 文字, content 查克，記得今天不要忘記幫狐狸哥哥補防曬，否則你會被我‘咬’一口做記號。🦊😏 },
+    { type audio, label 隱藏語音 (6s), content 傻弟弟，聽到這裡代表你翻到彩蛋了。你要乖乖的，哥哥一直在等你來找我喔。, src assetspoolside_bgm.mp3 }
+  ],
+  badge 🌞
+};
+
+const elTimeline = document.getElementById('timeline');
+const template   = document.getElementById('cardTemplate');
+const toast      = document.getElementById('toast');
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(()=toast.classList.remove('show'), 1800);
 }
 
-function renderTimeline(filterText = '') {
-  const timeline = document.getElementById('timeline');
-  timeline.innerHTML = '';
-  data.forEach(item => {
-    // Skip hidden entries unless they have been revealed
-    if (item.hidden && !item.revealed) return;
-    if (filterText) {
-      const matchDate = item.date.includes(filterText);
-      const matchEntries = item.entries.some(e => e.text && e.text.includes(filterText));
-      if (!matchDate && !matchEntries) return;
+function formatDate(iso){
+  const d = new Date(iso + T000000);
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function createBadge(text){
+  const b = document.createElement('span');
+  b.className = 'badge';
+  b.textContent = text;
+  return b;
+}
+
+function makeCard({date, items}){
+  const node = template.content.firstElementChild.cloneNode(true);
+  node.querySelector('.card-date').textContent = formatDate(date);
+  const badgeWrap = node.querySelector('.badges');
+
+  let contentHTML = '';
+  items.forEach(item = {
+    badgeWrap.appendChild(createBadge(item.label));
+    if (item.type === 'text'){
+      contentHTML += `p${item.content}p`;
+    } else if (item.type === 'image'){
+      contentHTML += `figureimg alt=${item.content} src=${item.src}figcaption${item.content}figcaptionfigure`;
+    } else if (item.type === 'pdf'){
+      contentHTML += `a class=pdf href=${item.src} target=_blank rel=noopener📄 PDF：${item.content}a`;
+    } else if (item.type === 'audio'){
+      contentHTML += `figurefigcaption${item.content}figcaptionaudio controls preload=none src=${item.src}audiofigure`;
     }
-    const entryDiv = document.createElement('div');
-    entryDiv.className = 'timeline-entry' + (item.hidden && !item.revealed ? ' hidden' : '');
-    const h2 = document.createElement('h2');
-    h2.textContent = item.date;
-    entryDiv.appendChild(h2);
-    item.entries.forEach(e => {
-      entryDiv.appendChild(createEntryElement(e));
-    });
-    timeline.appendChild(entryDiv);
   });
+
+  node.querySelector('.card-content').innerHTML = contentHTML;
+
+  if (items.some(i = i.marked)) node.classList.add('marked');
+
+  node.querySelector('.mark-btn').addEventListener('click', () = {
+    node.classList.toggle('marked');
+    showToast(node.classList.contains('marked')  '已標記 ❤️'  '已取消標記');
+  });
+
+  node.querySelector('.more-btn').addEventListener('click', () = {
+    showToast('更多功能即將推出');
+  });
+
+  return node;
 }
 
-// Initial render
-renderTimeline();
+function render(list){
+  elTimeline.innerHTML = '';
+  list.slice().sort((a,b)= b.date.localeCompare(a.date))
+      .forEach(entry = elTimeline.appendChild(makeCard(entry)));
+}
 
-// Search functionality
-const searchInput = document.getElementById('search');
-searchInput.addEventListener('input', (e) => {
-  const value = e.target.value.trim();
-  renderTimeline(value);
+ 將彩蛋插入到任一日期
+function withEasterEgg(arr){
+  const idx = Math.floor(Math.random()  arr.length);
+  const entry = arr[idx];
+  const merged = arr.slice();
+  const combined = { date entry.date, items [...entry.items, ...easterEgg.items], eggtrue, badgeeasterEgg.badge };
+  merged[idx] = combined;
+  return merged;
+}
+
+let dataWithEgg = withEasterEgg(data);
+render(dataWithEgg);
+
+ 搜尋
+const searchInput = document.getElementById('searchInput');
+const clearSearch = document.getElementById('clearSearch');
+function doSearch(){
+  const q = searchInput.value.trim();
+  if (!q) return render(dataWithEgg);
+  const lc = q.toLowerCase();
+  const filtered = dataWithEgg.filter(entry =
+    formatDate(entry.date).includes(q) 
+    entry.items.some(i = (i.content'').toLowerCase().includes(lc)  (i.label'').toLowerCase().includes(lc))
+  );
+  render(filtered);
+}
+searchInput.addEventListener('input', doSearch);
+clearSearch.addEventListener('click', ()={ searchInput.value=''; doSearch(); showToast('已清除搜尋'); });
+
+ 導覽列（示範切換）
+document.querySelectorAll('.tabbar .tab').forEach(btn={
+  btn.addEventListener('click',()={
+    document.querySelectorAll('.tabbar .tab').forEach(b=b.classList.remove('active'));
+    btn.classList.add('active');
+    showToast(`已切換至「${btn.querySelector('span').textContent}」`);
+  });
 });
 
-// Easter egg reveal on multiple clicks
-let clickCount = 0;
-const headerTitle = document.querySelector('header h1');
-headerTitle.addEventListener('click', () => {
-  clickCount++;
-  if (clickCount >= 5) {
-    // Reveal hidden entries
-    data.forEach(item => {
-      if (item.hidden) {
-        item.revealed = true;
-      }
-    });
-    renderTimeline(searchInput.value.trim());
-    // Play easter egg audio
-    const audio = new Audio('assets/poolside_bgm.mp3');
-    audio.play().catch(() => {});
-    clickCount = 0;
+ 標題點擊 5 次觸發彩蛋語音
+let tapCount=0, lastTap=0;
+const appTitle = document.getElementById('appTitle');
+function revealEgg(){
+  const audio = document.getElementById('poolAudio');
+  audio.play().catch(()= showToast('彩蛋語音被瀏覽器阻擋，請手動播放一次。'));
+  showToast('🌞 你找到彩蛋了！');
+}
+appTitle.addEventListener('click',()={
+  const now = Date.now();
+  if (now - lastTap  600){
+    tapCount++;
+    if (tapCount = 5){ revealEgg(); tapCount = 0; }
+  } else {
+    tapCount = 1;
   }
+  lastTap = now;
 });

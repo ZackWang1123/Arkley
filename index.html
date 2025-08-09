@@ -1,26 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Project Arkley 記事</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Project Arkley · 日常記事</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header>
-<h1>☕ 日常 · 記事</h1>
-<input type="search" id="search" placeholder="搜尋日期或標籤…">
-</header>
-<main id="timeline"></main>
-<footer>
-<nav class="bottom-nav">
-<a href="#" class="nav-item active">記事</a>
-<a href="#" class="nav-item">對話</a>
-<a href="#" class="nav-item">回憶</a>
-<a href="#" class="nav-item">密語</a>
-<a href="#" class="nav-item">設定</a>
-</nav>
-</footer>
-<script src="script.js"></script>
+  <!-- 固定主視覺背景 -->
+  <div class="app-bg" role="img" aria-label="夏日泳池狐狸哥哥主視覺背景"></div>
+
+  <!-- 置頂標題＋搜尋 -->
+  <header class="app-header">
+    <h1 id="appTitle" title="標題連點 5 下有彩蛋">☕ 日常 · 記事</h1>
+    <div class="search-bar">
+      <input id="searchInput" type="search" placeholder="搜尋（內容、日期或標籤）" aria-label="搜尋">
+      <button id="clearSearch" aria-label="清除搜尋">×</button>
+    </div>
+  </header>
+
+  <!-- 主要內容：時間軸 -->
+  <main id="content" class="content" aria-live="polite">
+    <section id="timeline" class="timeline" aria-label="記事時間軸">
+      <!-- 卡片由 script.js 動態插入 -->
+    </section>
+  </main>
+
+  <!-- 半透明底部導覽列 -->
+  <nav class="tabbar" aria-label="底部導覽">
+    <button class="tab active" data-tab="note" aria-label="記事">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm7 1v4h4"/></svg>
+      <span>記事</span>
+    </button>
+    <button class="tab" data-tab="chat" aria-label="對話">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H7l-3 3V4z"/></svg>
+      <span>對話</span>
+    </button>
+    <button class="tab" data-tab="memory" aria-label="回憶">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 6.36 15.36L21 21l-2.64-2.64A9 9 0 0 0 12 3z"/></svg>
+      <span>回憶</span>
+    </button>
+    <button class="tab" data-tab="secret" aria-label="密語">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6l7-4z"/></svg>
+      <span>密語</span>
+    </button>
+    <button class="tab" data-tab="settings" aria-label="設定">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.4 13a7.96 7.96 0 0 0 0-2l2.1-1.6-2-3.5-2.6 1a8.1 8.1 0 0 0-1.7-1l-.4-2.8H9.2l-.4 2.8a8.1 8.1 0 0 0-1.7 1l-2.6-1-2 3.5L4.6 11a7.96 7.96 0 0 0 0 2l-2.1 1.6 2 3.5 2.6-1a8.1 8.1 0 0 0 1.7 1l.4 2.8h5.6l.4-2.8a8.1 8.1 0 0 0 1.7-1l2.6 1 2-3.5L19.4 13zM12 15a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/></svg>
+      <span>設定</span>
+    </button>
+  </nav>
+
+  <!-- 彩蛋語音（路徑已預留，可自行替換 assets/poolside_bgm.mp3） -->
+  <audio id="poolAudio" preload="none">
+    <source src="assets/poolside_bgm.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- 卡片模板 -->
+  <template id="cardTemplate">
+    <article class="card" data-type="">
+      <div class="card-top">
+        <time class="card-date"></time>
+        <div class="badges"></div>
+      </div>
+      <div class="card-content"></div>
+      <div class="card-actions">
+        <button class="mark-btn" aria-label="標記">★</button>
+        <button class="more-btn" aria-label="更多">⋯</button>
+      </div>
+    </article>
+  </template>
+
+  <!-- Toast 提示 -->
+  <div id="toast" class="toast" role="status" aria-live="assertive" aria-atomic="true"></div>
+
+  <script src="script.js"></script>
 </body>
 </html>
