@@ -42,6 +42,9 @@ function showToast(msg){
   setTimeout(()=toast.classList.remove('show'), 1800);
 }
 
+const show = showToast;
+const Toast = showToast;
+
 function formatDate(iso){
   const d = new Date(iso + T000000);
   return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
@@ -170,4 +173,5 @@ appTitle.addEventListener('click',()={
         window.location.href = pages[tab] || 'index.html';
       });
     });
+
 
