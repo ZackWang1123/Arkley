@@ -128,9 +128,12 @@ clearSearch.addEventListener('click', ()={ searchInput.value=''; doSearch(); sho
 document.querySelectorAll('.tabbar .tab').forEach(btn={
   btn.addEventListener('click',()={
     document.querySelectorAll('.tabbar .tab').forEach(b=b.classList.remove('active'));
+   
     btn.classList.add('active');
-    showToast(`已切換至「${btn.querySelector('span').textContent}」`);
+    show
+     Toast(`已切換至「${btn.querySelector('span').textContent}」`);
   });
+                                                  
 });
 
  標題點擊 5 次觸發彩蛋語音
@@ -151,3 +154,19 @@ appTitle.addEventListener('click',()={
   }
   lastTap = now;
 });
+
+
+// Navigation to respective pages based on tab
+    document.querySelectorAll('.tabbar .tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        const pages = {
+          note: 'index.html',
+          chat: 'chat.html',
+          memory: 'memory.html',
+          secret: 'secret.html',
+          settings: 'settings.html'
+        };
+        window.location.href = pages[tab] || 'index.html';
+      });
+    });
