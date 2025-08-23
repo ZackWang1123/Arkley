@@ -170,3 +170,4 @@ appTitle.addEventListener('click',()={
         window.location.href = pages[tab] || 'index.html';
       });
     });
+
